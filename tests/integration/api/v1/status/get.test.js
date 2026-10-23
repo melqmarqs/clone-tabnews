@@ -1,6 +1,26 @@
 test("GET to /api/v1/status should return 200", async () => {
-  const resp = await fetch("http://localhost:3000/api/v1/status");
-  const conteudoResp = JSON.parse(await resp.text());
-  expect(resp.status).toBe(200);
-  expect(conteudoResp.mensagem).toBe("o endpoint funcionou");
+  const response = await fetch("http://localhost:3000/api/v1/status");
+  expect(response.status).toBe(200);
+
+  const responseBody = await response.json();
+  expect(responseBody.updated_at).toBeDefined();
+
+  const parsedUpdatedAt = new Date(responseBody.updated_at).toISOString();
+  expect(responseBody.updated_at).toEqual(parsedUpdatedAt);
+
+  expect(responseBody).toHaveProperty("dependencies.database.version");
+  expect(responseBody.dependencies.database.version).toEqual("16.0");
+
+  expect(responseBody).toHaveProperty("dependencies.database.max_connections");
+  expect(typeof responseBody.dependencies.database.max_connections).toEqual(
+    "number",
+  );
+
+  expect(responseBody).toHaveProperty(
+    "dependencies.database.opened_connections",
+  );
+  expect(typeof responseBody.dependencies.database.opened_connections).toEqual(
+    "number",
+  );
+  expect(responseBody.dependencies.database.opened_connections).toBe(1);
 });
